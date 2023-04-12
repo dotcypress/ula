@@ -1,0 +1,3 @@
+[toolchain]
+channel = "stable"
+targets = ["thumbv6m-none-eabi"]

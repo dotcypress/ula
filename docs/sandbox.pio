@@ -1,0 +1,62 @@
+.program trigger
+
+.macro sample () {
+    mov osr, ::pins
+}
+
+.macro skip ($n) { 
+    out null, $n
+}
+
+.macro match ($bits) {
+    .if len!($bits) == 1 {
+        out x, 1
+        jmp { $bits[0] ? !x : x-- } $stage_start
+    .else {
+        out x, len!($bits)
+        set y, bits
+        jmp x!=y $stage_start
+    }
+}
+
+public entry_point:
+
+; Mask      1011_0000
+; Polarity  1001_0000
+; Pattern   1x01_xxxx
+stage_0:
+    sample!()
+    skip!(4)
+    match!(01)
+    skip!(1)
+    match!(1)
+
+; Mask      1111_1111
+; Polarity  1000_1110
+; Pattern   1000_1110
+stage_1:
+    sample!()
+    match!(1110)
+    match!(1000)
+
+; Mask      0111_1111
+; Polarity  0101_1011
+; Pattern   x101_1011
+stage_2:
+    sample!()
+    match!(1011)
+    match!(101)
+
+; Mask      1110_0011
+; Polarity  0100_0010
+; Pattern   010x_xx10
+stage_3:
+    sample!()
+    match!(10)
+    skip!(3)
+    match!(010)
+
+.wrap_target
+capture:
+    in pins, 16
+.wrap

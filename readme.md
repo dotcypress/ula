@@ -19,7 +19,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 
 1. Download latest firmware build from [Releases page](https://github.com/dotcypress/ula/releases)
 2. Hold the BOOTSEL button while connecting your board to the computer
-3. Copy firmware file downloaded earlier to the RPi-RP2 disk.
+3. Copy firmware file downloaded earlier to the RPi-RP2 disk
 
 ## Client software
 
@@ -27,7 +27,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 
 [PulseView](https://sigrok.org/wiki/PulseView) is a Qt based logic analyzer GUI for sigrok.
 
-<img al="uLA" width="800" src="docs/pulseview.png">
+<img al="uLA: Micro Logic Analyzer" width="800" src="docs/pulseview.png">
 
 ### SigrokCli
 
@@ -44,7 +44,7 @@ $ sigrok-cli -d ols:conn=/dev/tty.usbmodem_ula_1 --scan
 Sample two 10 MHz square waves with 90° phase shift
 ```
 $ sigrok-cli -d ols:conn=/dev/tty.usbmodem_ula_1 -O ascii:charset='_`\/'
-    --channels 0-2 m --samples 70 --config samplerate=100
+    --channels 0-2 --samples 70 --config samplerate=100m
 
   libsigrok 0.5.2
   Acquisition with 8/16 channels at 100 MHz

@@ -4,6 +4,7 @@ type Ingest = (
     StateMachine<(pac::PIO0, SM0), Running>,
     Tx<(pac::PIO0, hal::pio::SM0)>,
 );
+
 enum Sink {
     InProgress(
         single_buffer::Transfer<

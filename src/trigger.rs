@@ -1,5 +1,8 @@
 use crate::*;
 
+pub type TriggerAssembler = pio::Assembler<32>;
+pub type TriggerProgram = pio::Program<32>;
+
 #[derive(Default, Clone, Copy)]
 pub struct TriggerStage {
     mask: u32,
@@ -25,8 +28,8 @@ impl Trigger {
         self.stages[stage].delay = delay;
     }
 
-    pub fn compile(&self) -> pio::Program<32> {
-        let mut asm = pio::Assembler::<32>::new();
+    pub fn compile(&self) -> TriggerProgram {
+        let mut asm = TriggerAssembler::new();
         let mut wrap_target = asm.label();
         let mut wrap_source = asm.label();
 
@@ -79,7 +82,7 @@ impl Trigger {
                             let bits = ones.min(5);
                             let val = pattern & ((1 << bits) - 1);
 
-                            asm.set(pio::SetDestination::Y, val as u8);
+                            asm.set(pio::SetDestination::Y, val as _);
                             asm.out(pio::OutDestination::X, bits as _);
                             asm.jmp(pio::JmpCondition::XNotEqualY, &mut stage_label);
                             pattern >>= bits;
@@ -93,9 +96,7 @@ impl Trigger {
             {
                 for probe in 0..PROBES {
                     if mask & 1 == 1 {
-                        let pol = pattern & 1 == 1;
-
-                        asm.wait(pol as _, pio::WaitSource::PIN, probe as _, false)
+                        asm.wait(pattern as u8 & 1, pio::WaitSource::PIN, probe as _, false)
                     }
                     pattern >>= 1;
                     mask >>= 1;

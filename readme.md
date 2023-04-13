@@ -43,11 +43,13 @@ $ sigrok-cli -d ols:conn=/dev/tty.usbmodem_ula_1 --scan
 
 Sample two 10 MHz square waves with 90° phase shift
 ```
-$ sigrok-cli -d ols:conn=/dev/tty.usbmodem_ula_1 -O ascii:charset='_`\/'
-    --channels 0-2 --samples 70 --config samplerate=100m
+$ sigrok-cli -d ols:conn=/dev/tty.usbmodem_ula_1 
+    -O ascii:charset='_`\/'
+    --config samplerate=100m
+    --samples 70
 
   libsigrok 0.5.2
-  Acquisition with 8/16 channels at 100 MHz
+  Acquisition with 16/16 channels at 100 MHz
   0:``\____/`````\___/`````\___/`````\___/`````\___/`````\___/`````\___/``
   1:____/`````\____/````\____/````\____/````\____/````\____/````\____/````
   2:______________________________________________________________________

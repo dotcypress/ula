@@ -75,15 +75,9 @@ mod app {
 
         let usb_regs = ctx.device.USBCTRL_REGS;
         let usb_dpram = ctx.device.USBCTRL_DPRAM;
+        let usb_bus = UsbBus::new(usb_regs, usb_dpram, clocks.usb_clock, true, &mut resets);
         let usb_bus: &'static UsbBusAllocator<UsbBus> =
-            singleton!(: UsbBusAllocator<UsbBus> = UsbBusAllocator::new(UsbBus::new(
-                usb_regs,
-                usb_dpram,
-                clocks.usb_clock,
-                true,
-                &mut resets,
-            )))
-            .unwrap();
+            singleton!(: UsbBusAllocator<UsbBus> = UsbBusAllocator::new(usb_bus)).unwrap();
 
         let serial = SerialPort::new(usb_bus);
         let usb_dev = UsbDeviceBuilder::new(usb_bus, UsbVidPid(0x16c0, 0x27dd))

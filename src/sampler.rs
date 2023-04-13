@@ -38,11 +38,10 @@ impl Sampler {
         dma_ch.listen_irq0();
 
         let mut pio = pio;
-        let mut asm = pio::Assembler::<32>::new();
+        let mut asm = TriggerAssembler::new();
         asm.push(true, true);
-        let bytecode = asm.assemble_program();
-        let program = pio.install(&bytecode).unwrap();
-        let (sm, rx, tx) = hal::pio::PIOBuilder::from_program(program).build(sm);
+        let program = pio.install(&asm.assemble_program()).unwrap();
+        let (sm, rx, tx) = PIOBuilder::from_program(program).build(sm);
         let sm = sm.start();
 
         let samples = singleton!(: [u32; SAMPLE_MEMORY/4] = [0x00; SAMPLE_MEMORY/4]).unwrap();

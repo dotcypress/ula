@@ -10,14 +10,14 @@ enum Sink {
         single_buffer::Transfer<
             Channel<CH11>,
             Rx<(pac::PIO0, SM0)>,
-            &'static mut [u32; SAMPLE_MEMORY / 2],
+            &'static mut [u32; SAMPLE_MEMORY / 4],
         >,
     ),
     StandBy(
         (
             Channel<CH11>,
             Rx<(pac::PIO0, SM0)>,
-            &'static mut [u32; SAMPLE_MEMORY / 2],
+            &'static mut [u32; SAMPLE_MEMORY / 4],
         ),
     ),
 }
@@ -45,7 +45,7 @@ impl Sampler {
         let (sm, rx, tx) = hal::pio::PIOBuilder::from_program(program).build(sm);
         let sm = sm.start();
 
-        let samples = singleton!(: [u32; SAMPLE_MEMORY/2] = [0x00; SAMPLE_MEMORY/2]).unwrap();
+        let samples = singleton!(: [u32; SAMPLE_MEMORY/4] = [0x00; SAMPLE_MEMORY/4]).unwrap();
         let sink = Sink::StandBy((dma_ch, rx, samples));
 
         Self {

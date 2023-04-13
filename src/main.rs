@@ -24,7 +24,7 @@ use usb_device::{class_prelude::*, prelude::*};
 use usbd_serial::SerialPort;
 
 pub const PROBES: usize = 16;
-pub const SAMPLE_MEMORY: usize = 100_000;
+pub const SAMPLE_MEMORY: usize = 200_000;
 pub const SAMPLE_RATE: usize = 100_000_000;
 
 pub const PIN_BASE: usize = 0;

@@ -6,7 +6,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 
 * 16 channels
 * 100 MHz sampling rate
-* 100 KB sample memory
+* 200 KB sample memory
 * Fast triggers using PIO
 
 ## Supported hardware

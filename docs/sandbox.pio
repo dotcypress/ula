@@ -14,7 +14,7 @@
         jmp { $bits[0] ? !x : x-- } $stage_start
     .else {
         out x, len!($bits)
-        set y, bits
+        set y, $bits
         jmp x!=y $stage_start
     }
 }

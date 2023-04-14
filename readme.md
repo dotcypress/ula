@@ -5,7 +5,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 ## Features
 
 * 16 channels
-* 100 MHz sampling rate
+* 100 MHz sampling rate, 1 sample per sys tick
 * 200 KB sample memory
 * Fast triggers using PIO
 * Input channels mapped to GPIO 0-15
@@ -14,7 +14,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 
 * [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico)
 * [RP2040-Zero](https://www.waveshare.com/rp2040-zero.htm)
-* All RP2040 based boards with USB connection
+* Virtually all RP2040 based boards with USB connection and GPIO 0-15 available
 
 ## Installation
 
@@ -22,6 +22,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 2. Hold the BOOTSEL button while connecting your board to the computer
 3. Copy firmware file downloaded earlier to the RPi-RP2 disk
 4. Use PulseView of SigrokCli to coonetc to probe
+5. Enjoy
 
 ## Client software
 
@@ -35,7 +36,7 @@ Select `Openbench Logic Sniffer & SUMP compatible` protocol when connecting to Î
 
 Protocol selection         |  Connect window
 :-------------------------:|:-------------------------:
-<img al="uLA: Micro Logic Analyzer" width="300" src="docs/pulseview_protocol.png"> | <img al="uLA: Micro Logic Analyzer" width="300" src="docs/pulseview_connect.png">
+<img alt="uLA: Micro Logic Analyzer" src="docs/pulseview_protocol.png"> | <img alt="uLA: Micro Logic Analyzer" src="docs/pulseview_connect.png">
 
 ### SigrokCli
 

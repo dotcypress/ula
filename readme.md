@@ -31,7 +31,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 
 <img al="uLA: Micro Logic Analyzer" width="800" src="docs/pulseview.png">
 
-Select `Openbench Logic Sniffer & SUMP compatible` protocol for connect to μLA.
+Select `Openbench Logic Sniffer & SUMP compatible` protocol when connecting to μLA.
 
 Protocol selection         |  Connect window
 :-------------------------:|:-------------------------:

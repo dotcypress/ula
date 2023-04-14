@@ -21,7 +21,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 1. Download latest firmware build from [Releases page](https://github.com/dotcypress/ula/releases)
 2. Hold the BOOTSEL button while connecting your board to the computer
 3. Copy firmware file downloaded earlier to the RPi-RP2 disk
-4. Use PulseView of SigrokCli to coonetc to probe
+4. Use PulseView of SigrokCli to connect to probe
 5. Enjoy
 
 ## Client software

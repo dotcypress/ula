@@ -8,6 +8,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 * 100 MHz sampling rate
 * 200 KB sample memory
 * Fast triggers using PIO
+* Input channels mapped to GPIO 0-15
 
 ## Supported hardware
 
@@ -20,6 +21,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 1. Download latest firmware build from [Releases page](https://github.com/dotcypress/ula/releases)
 2. Hold the BOOTSEL button while connecting your board to the computer
 3. Copy firmware file downloaded earlier to the RPi-RP2 disk
+4. Use PulseView of SigrokCli to coonetc to probe
 
 ## Client software
 
@@ -29,9 +31,15 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 
 <img al="uLA: Micro Logic Analyzer" width="800" src="docs/pulseview.png">
 
+Use `Openbench Logic Sniffer $ SUMP compatible` protocol for connect to μLA
+
+Protocol selection         |  Connect window
+:-------------------------:|:-------------------------:
+<img al="uLA: Micro Logic Analyzer" width="300" src="docs/pulseview_protocol.png"> | <img al="uLA: Micro Logic Analyzer" width="300" src="docs/pulseview_connect.png">
+
 ### SigrokCli
 
-[SigrokCli](https://sigrok.org/wiki/Sigrok-cli) is a command-line frontend for sigrok. 
+[SigrokCli](https://sigrok.org/wiki/Sigrok-cli) is a command-line frontend for sigrok.
 
 Scan for devices
 ```

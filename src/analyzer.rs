@@ -5,9 +5,6 @@ pub struct LogicAnalyzer {
     usb_dev: UsbDevice<'static, UsbBus>,
     sampler: Sampler,
     trigger: Trigger,
-    prescaler: u16,
-    flags: u8,
-    samples: usize,
     needle: usize,
     scratch: [u8; 64],
 }
@@ -25,9 +22,6 @@ impl LogicAnalyzer {
             sampler,
             serial,
             usb_dev,
-            flags: 0,
-            samples: 0,
-            prescaler: 0,
             needle: 0,
             scratch: [0; 64],
             trigger: Default::default(),
@@ -35,8 +29,7 @@ impl LogicAnalyzer {
     }
 
     pub fn acquisition_done(&mut self) {
-        self.sampler
-            .drain(&mut self.serial, self.samples, self.flags);
+        self.sampler.drain(&mut self.serial);
     }
 
     pub fn poll_serial(&mut self) {
@@ -44,16 +37,11 @@ impl LogicAnalyzer {
             match self.parse_command() {
                 Some(SumpCommand::Reset) => {
                     self.needle = 0;
-                    self.samples = 0;
                 }
-                Some(SumpCommand::Arm) => self.sampler.start(self.prescaler, self.trigger),
-                Some(SumpCommand::SetFlags(flags)) => self.flags = flags,
-                Some(SumpCommand::SetPrescaler(prescaler)) => {
-                    self.prescaler = prescaler;
-                }
-                Some(SumpCommand::SetReadCount(amount)) => {
-                    self.samples = amount;
-                }
+                Some(SumpCommand::Arm) => self.sampler.start(self.trigger),
+                Some(SumpCommand::SetFlags(flags)) => self.sampler.set_flags(flags),
+                Some(SumpCommand::SetDivisor(divisor)) => self.sampler.set_divisor(divisor),
+                Some(SumpCommand::SetReadCount(samples)) => self.sampler.set_sample_memory(samples),
                 Some(SumpCommand::SetTriggerMask(stage, mask)) if stage < 4 => {
                     self.trigger.set_mask(stage as _, mask);
                 }
@@ -75,7 +63,9 @@ impl LogicAnalyzer {
                     self.serial.write(&(SAMPLE_MEMORY).to_be_bytes()).ok();
                     self.serial.write(&[0x23]).ok();
                     self.serial.write(&SAMPLE_RATE.to_be_bytes()).ok();
-                    self.serial.write(&[0x24, 0x00, 0x00, 0x00, 0x02]).ok();
+                    self.serial
+                        .write(&[0x24, 0x00, 0x00, 0x00, 0x02, 0x00])
+                        .ok();
                 }
 
                 _ => {}
@@ -109,7 +99,7 @@ impl LogicAnalyzer {
                             let prescaler =
                                 u32::from_le_bytes(self.scratch[1..5].try_into().unwrap());
                             self.drain_rx(5);
-                            Some(SumpCommand::SetPrescaler(prescaler as _))
+                            Some(SumpCommand::SetDivisor(prescaler as _))
                         }
                         0x81 => {
                             let samples =
@@ -163,7 +153,7 @@ enum SumpCommand {
     Arm,
     GetId,
     GetMeta,
-    SetPrescaler(u16),
+    SetDivisor(u16),
     SetReadCount(usize),
     SetFlags(u8),
     SetTriggerMask(u8, u32),

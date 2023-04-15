@@ -47,60 +47,45 @@ impl Trigger {
             let mut stage_label = asm.label();
             asm.bind(&mut stage_label);
 
-            #[cfg(not(feature = "serial_trigger"))]
-            {
-                asm.mov(
-                    pio::MovDestination::OSR,
-                    pio::MovOperation::BitReverse,
-                    pio::MovSource::PINS,
-                );
+            asm.mov(
+                pio::MovDestination::OSR,
+                pio::MovOperation::BitReverse,
+                pio::MovSource::PINS,
+            );
 
-                loop {
-                    match mask.trailing_zeros() {
-                        0 => {}
-                        32 => break,
-                        zeros => {
-                            asm.out(pio::OutDestination::NULL, zeros as _);
-                            pattern >>= zeros;
-                            mask >>= zeros;
-                        }
-                    };
-                    match mask.trailing_ones() {
-                        0 => {}
-                        1 => {
-                            let cond = if pattern & 1 == 1 {
-                                pio::JmpCondition::XIsZero
-                            } else {
-                                pio::JmpCondition::XDecNonZero
-                            };
-                            asm.out(pio::OutDestination::X, 1);
-                            asm.jmp(cond, &mut stage_label);
-                            pattern >>= 1;
-                            mask >>= 1;
-                        }
-                        ones => {
-                            let bits = ones.min(5);
-                            let val = pattern & ((1 << bits) - 1);
-
-                            asm.set(pio::SetDestination::Y, val as _);
-                            asm.out(pio::OutDestination::X, bits as _);
-                            asm.jmp(pio::JmpCondition::XNotEqualY, &mut stage_label);
-                            pattern >>= bits;
-                            mask >>= bits;
-                        }
-                    };
-                }
-            }
-
-            #[cfg(feature = "serial_trigger")]
-            {
-                for probe in 0..PROBES {
-                    if mask & 1 == 1 {
-                        asm.wait(pattern as u8 & 1, pio::WaitSource::PIN, probe as _, false)
+            loop {
+                match mask.trailing_zeros() {
+                    0 => {}
+                    32 => break,
+                    zeros => {
+                        asm.out(pio::OutDestination::NULL, zeros as _);
+                        pattern >>= zeros;
+                        mask >>= zeros;
                     }
-                    pattern >>= 1;
-                    mask >>= 1;
-                }
+                };
+                match mask.trailing_ones() {
+                    0 => {}
+                    1 => {
+                        let cond = if pattern & 1 == 1 {
+                            pio::JmpCondition::XIsZero
+                        } else {
+                            pio::JmpCondition::XDecNonZero
+                        };
+                        asm.out(pio::OutDestination::X, 1);
+                        asm.jmp(cond, &mut stage_label);
+                        pattern >>= 1;
+                        mask >>= 1;
+                    }
+                    ones => {
+                        let bits = ones.min(5);
+                        let val = pattern & ((1 << bits) - 1);
+                        asm.set(pio::SetDestination::Y, val as _);
+                        asm.out(pio::OutDestination::X, bits as _);
+                        asm.jmp(pio::JmpCondition::XNotEqualY, &mut stage_label);
+                        pattern >>= bits;
+                        mask >>= bits;
+                    }
+                };
             }
         }
 

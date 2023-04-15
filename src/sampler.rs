@@ -26,6 +26,9 @@ pub struct Sampler {
     pio: PIO<pac::PIO0>,
     sink: Option<Sink>,
     ingest: Option<Ingest>,
+    divisor: u16,
+    samples: usize,
+    ch_groups: [bool; 2],
 }
 
 impl Sampler {
@@ -49,13 +52,29 @@ impl Sampler {
 
         Self {
             pio,
+            divisor: 0,
+            samples: 0,
+            ch_groups: [false; 2],
             ingest: Some((sm, tx)),
             sink: Some(sink),
         }
     }
 
-    pub fn start(&mut self, divisor: u16, trigger: Trigger) {
-        let (ch, rx, samples) = match self.sink.take() {
+    pub fn set_flags(&mut self, flags: u8) {
+        self.ch_groups[0] = flags >> 2 & 1 == 0;
+        self.ch_groups[1] = flags >> 3 & 1 == 0;
+    }
+
+    pub fn set_divisor(&mut self, divisor: u16) {
+        self.divisor = divisor;
+    }
+
+    pub fn set_sample_memory(&mut self, samples: usize) {
+        self.samples = samples;
+    }
+
+    pub fn start(&mut self, trigger: Trigger) {
+        let (ch, rx, sample_mem) = match self.sink.take() {
             Some(Sink::StandBy(dma)) => dma,
             Some(Sink::InProgress(tx)) => tx.wait(),
             _ => unreachable!(),
@@ -65,51 +84,47 @@ impl Sampler {
             Some((sm, tx)) => {
                 let (sm, old) = sm.uninit(rx, tx);
                 self.pio.uninstall(old);
-
                 let program = trigger.compile();
                 let program = self.pio.install(&program).unwrap();
-                let (sm, rx, tx) = hal::pio::PIOBuilder::from_program(program)
-                    .clock_divisor_fixed_point(divisor + 1, 0)
+                let (sm, rx, tx) = PIOBuilder::from_program(program)
+                    .clock_divisor_fixed_point(self.divisor + 1, 0)
                     .autopush(true)
                     .in_pin_base(PIN_BASE as _)
                     .build(sm);
-                let transfer = single_buffer::Config::new(ch, rx, samples);
-                self.sink = Some(Sink::InProgress(transfer.start()));
+                let mut transfer = single_buffer::Config::new(ch, rx, sample_mem);
+                transfer.pace(Pace::PreferSource);
+                let transfer = transfer.start();
+                self.sink = Some(Sink::InProgress(transfer));
                 self.ingest = Some((sm.start(), tx));
             }
             _ => unreachable!(),
         }
     }
 
-    pub fn drain(&mut self, serial: &mut SerialPort<'_, UsbBus>, amount: usize, flags: u8) {
+    pub fn drain(&mut self, serial: &mut SerialPort<'_, UsbBus>) {
         if let Some(sink) = self.sink.take() {
             match sink {
                 Sink::InProgress(mut tx) => {
                     tx.check_irq0();
-                    let (ch, rx, samples) = tx.wait();
-
-                    let group0 = flags >> 2 & 1 == 0;
-                    let group1 = flags >> 3 & 1 == 0;
-
-                    for chunk in samples.chunks(2).take(amount + 1).rev() {
+                    let (ch, rx, sample_mem) = tx.wait();
+                    for chunk in sample_mem.chunks(2).take(self.samples + 1).rev() {
                         let s02 = chunk[1].to_le_bytes();
                         let s13 = chunk[0].to_le_bytes();
-                        match (group0, group1) {
-                            (true, false) => {
+                        match self.ch_groups {
+                            [true, false] => {
                                 serial.write(&[s02[0], s02[2], s13[0], s13[2]]).ok();
                             }
-                            (false, true) => {
+                            [false, true] => {
                                 serial.write(&[s02[1], s02[3], s13[1], s13[3]]).ok();
                             }
-                            (true, true) => {
+                            [true, true] => {
                                 serial.write(&s02).ok();
                                 serial.write(&s13).ok();
                             }
                             _ => {}
                         }
                     }
-
-                    self.sink = Some(Sink::StandBy((ch, rx, samples)));
+                    self.sink = Some(Sink::StandBy((ch, rx, sample_mem)));
                 }
                 _ => unreachable!(),
             }

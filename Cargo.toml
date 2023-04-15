@@ -22,9 +22,6 @@ usb-device = "0.2.9"
 cortex-m = "0.7.7"
 panic-probe = "0.3.1"
 
-[features]
-serial_trigger = []
-
 [profile.dev]
 codegen-units = 1
 debug = 2

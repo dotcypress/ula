@@ -15,6 +15,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 * [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico)
 * [RP2040-Zero](https://www.waveshare.com/rp2040-zero.htm)
 * Virtually all RP2040 based boards with USB connection and GPIO 0-15 available
+* Bring your own RP2040 hardware with proper frontend and protection
 
 ## Installation
 
@@ -28,9 +29,9 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 
 ### PulseView
 
-[PulseView](https://sigrok.org/wiki/PulseView) is a Qt based logic analyzer GUI for sigrok.
-
 <img al="uLA: Micro Logic Analyzer" width="800" src="docs/pulseview.png">
+
+[PulseView](https://sigrok.org/wiki/PulseView) is a Qt based logic analyzer GUI for sigrok.
 
 Select `Openbench Logic Sniffer & SUMP compatible` protocol when connecting to μLA.
 

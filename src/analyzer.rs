@@ -1,8 +1,22 @@
 use crate::*;
 
+enum SumpCommand {
+    Reset,
+    Arm,
+    GetId,
+    GetMeta,
+    SetDivisor(u16),
+    SetReadCount(usize),
+    SetFlags(u8),
+    SetTriggerMask(u8, u32),
+    SetTriggerValues(u8, u32),
+    SetTriggerDelay(u8, u32),
+}
+
 pub struct LogicAnalyzer {
     serial: SerialPort<'static, UsbBus>,
     usb_dev: UsbDevice<'static, UsbBus>,
+    status_led: Pin<bank0::Gpio25, Output<PushPull>>,
     sampler: Sampler,
     trigger: Trigger,
     needle: usize,
@@ -16,12 +30,14 @@ impl LogicAnalyzer {
         pio: PIO<pac::PIO0>,
         sm: UninitStateMachine<(pac::PIO0, SM0)>,
         dma: dma::Channels,
+        status_led: Pin<bank0::Gpio25, Output<PushPull>>,
     ) -> Self {
         let sampler = Sampler::new(pio, sm, dma);
         Self {
             sampler,
             serial,
             usb_dev,
+            status_led,
             needle: 0,
             scratch: [0; 64],
             trigger: Default::default(),
@@ -30,45 +46,50 @@ impl LogicAnalyzer {
 
     pub fn acquisition_done(&mut self) {
         self.sampler.drain(&mut self.serial);
+        self.status_led.set_low().unwrap();
     }
 
     pub fn poll_serial(&mut self) {
         if self.usb_dev.poll(&mut [&mut self.serial]) {
-            match self.parse_command() {
-                Some(SumpCommand::Reset) => {
-                    self.needle = 0;
+            if let Some(cmd) = self.parse_command() {
+                match cmd {
+                    SumpCommand::Reset => {
+                        self.needle = 0;
+                    }
+                    SumpCommand::Arm => {
+                        self.status_led.set_high().unwrap();
+                        self.sampler.start(self.trigger);
+                    }
+                    SumpCommand::SetFlags(flags) => self.sampler.set_flags(flags),
+                    SumpCommand::SetDivisor(divisor) => self.sampler.set_divisor(divisor),
+                    SumpCommand::SetReadCount(samples) => self.sampler.set_sample_memory(samples),
+                    SumpCommand::SetTriggerMask(stage, mask) if stage < 4 => {
+                        self.trigger.set_mask(stage as _, mask);
+                    }
+                    SumpCommand::SetTriggerValues(stage, pattern) if stage < 4 => {
+                        self.trigger.set_pattern(stage as _, pattern);
+                    }
+                    SumpCommand::SetTriggerDelay(stage, delay) if stage < 4 => {
+                        self.trigger.set_delay(stage as _, delay);
+                    }
+                    SumpCommand::GetId => {
+                        self.serial.write(b"1ALS").ok();
+                    }
+                    SumpCommand::GetMeta => {
+                        self.serial.write(&[0x01]).ok();
+                        self.serial.write(b"uLA: Micro Logic Analyzer").ok();
+                        self.serial.write(&[0x00, 0x20]).ok();
+                        self.serial.write(&PROBES.to_be_bytes()).ok();
+                        self.serial.write(&[0x21]).ok();
+                        self.serial.write(&(SAMPLE_MEMORY).to_be_bytes()).ok();
+                        self.serial.write(&[0x23]).ok();
+                        self.serial.write(&SAMPLE_RATE.to_be_bytes()).ok();
+                        self.serial
+                            .write(&[0x24, 0x00, 0x00, 0x00, 0x02, 0x00])
+                            .ok();
+                    }
+                    _ => {}
                 }
-                Some(SumpCommand::Arm) => self.sampler.start(self.trigger),
-                Some(SumpCommand::SetFlags(flags)) => self.sampler.set_flags(flags),
-                Some(SumpCommand::SetDivisor(divisor)) => self.sampler.set_divisor(divisor),
-                Some(SumpCommand::SetReadCount(samples)) => self.sampler.set_sample_memory(samples),
-                Some(SumpCommand::SetTriggerMask(stage, mask)) if stage < 4 => {
-                    self.trigger.set_mask(stage as _, mask);
-                }
-                Some(SumpCommand::SetTriggerValues(stage, pattern)) if stage < 4 => {
-                    self.trigger.set_pattern(stage as _, pattern);
-                }
-                Some(SumpCommand::SetTriggerDelay(stage, delay)) if stage < 4 => {
-                    self.trigger.set_delay(stage as _, delay);
-                }
-                Some(SumpCommand::GetId) => {
-                    self.serial.write(b"1ALS").ok();
-                }
-                Some(SumpCommand::GetMeta) => {
-                    self.serial.write(&[0x01]).ok();
-                    self.serial.write(b"uLA: Micro Logic Analyzer").ok();
-                    self.serial.write(&[0x00, 0x20]).ok();
-                    self.serial.write(&PROBES.to_be_bytes()).ok();
-                    self.serial.write(&[0x21]).ok();
-                    self.serial.write(&(SAMPLE_MEMORY).to_be_bytes()).ok();
-                    self.serial.write(&[0x23]).ok();
-                    self.serial.write(&SAMPLE_RATE.to_be_bytes()).ok();
-                    self.serial
-                        .write(&[0x24, 0x00, 0x00, 0x00, 0x02, 0x00])
-                        .ok();
-                }
-
-                _ => {}
             }
         }
     }
@@ -146,17 +167,4 @@ impl LogicAnalyzer {
         self.needle -= n;
         self.scratch.copy_within(n.., 0);
     }
-}
-
-enum SumpCommand {
-    Reset,
-    Arm,
-    GetId,
-    GetMeta,
-    SetDivisor(u16),
-    SetReadCount(usize),
-    SetFlags(u8),
-    SetTriggerMask(u8, u32),
-    SetTriggerValues(u8, u32),
-    SetTriggerDelay(u8, u32),
 }

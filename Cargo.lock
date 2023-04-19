@@ -602,6 +602,7 @@ dependencies = [
  "cortex-m-rtic",
  "defmt",
  "defmt-rtt",
+ "embedded-hal",
  "panic-halt",
  "panic-probe",
  "pio",

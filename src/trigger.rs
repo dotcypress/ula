@@ -33,17 +33,12 @@ impl Trigger {
         let mut wrap_target = asm.label();
         let mut wrap_source = asm.label();
 
-        for stage in self.stages {
-            let TriggerStage {
-                mut mask,
-                mut pattern,
-                delay: _,
-            } = stage;
-
-            if mask == 0 {
-                continue;
-            }
-
+        for TriggerStage {
+            mut mask,
+            mut pattern,
+            delay: _,
+        } in self.stages.iter().filter(|s| s.mask != 0)
+        {
             let mut stage_label = asm.label();
             asm.bind(&mut stage_label);
 

@@ -13,6 +13,7 @@ use defmt_rtt as _;
 
 use analyzer::*;
 use cortex_m::singleton;
+use embedded_hal::digital::v2::OutputPin;
 use hal::dma::{self, *};
 use hal::gpio::*;
 use hal::pac;
@@ -119,7 +120,8 @@ mod app {
         pins.gpio14.into_mode::<FunctionPio0>();
         pins.gpio15.into_mode::<FunctionPio0>();
 
-        let analyzer = LogicAnalyzer::new(usb_dev, serial, pio, sm, dma);
+        let status_led = pins.gpio25.into_push_pull_output();
+        let analyzer = LogicAnalyzer::new(usb_dev, serial, pio, sm, dma, status_led);
 
         (Shared { analyzer }, Local {}, init::Monotonics())
     }

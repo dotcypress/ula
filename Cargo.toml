@@ -21,6 +21,7 @@ usbd-hid = "0.6.1"
 usb-device = "0.2.9"
 cortex-m = "0.7.7"
 panic-probe = "0.3.1"
+embedded-hal = "0.2.7"
 
 [profile.dev]
 codegen-units = 1

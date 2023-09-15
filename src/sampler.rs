@@ -38,7 +38,7 @@ impl Sampler {
         dma: dma::Channels,
     ) -> Self {
         let mut dma_ch = dma.ch11;
-        dma_ch.listen_irq0();
+        dma_ch.enable_irq0();
 
         let mut pio = pio;
         let mut asm = TriggerAssembler::new();

@@ -13,10 +13,12 @@ enum SumpCommand {
     SetTriggerDelay(u8, u32),
 }
 
+pub type Led = Pin<bank0::Gpio25, FunctionSio<SioOutput>, PullDown>;
+
 pub struct LogicAnalyzer {
     serial: SerialPort<'static, UsbBus>,
     usb_dev: UsbDevice<'static, UsbBus>,
-    status_led: Pin<bank0::Gpio25, Output<PushPull>>,
+    status_led: Led,
     sampler: Sampler,
     trigger: Trigger,
     needle: usize,
@@ -30,7 +32,7 @@ impl LogicAnalyzer {
         pio: PIO<pac::PIO0>,
         sm: UninitStateMachine<(pac::PIO0, SM0)>,
         dma: dma::Channels,
-        status_led: Pin<bank0::Gpio25, Output<PushPull>>,
+        status_led: Led,
     ) -> Self {
         let sampler = Sampler::new(pio, sm, dma);
         Self {

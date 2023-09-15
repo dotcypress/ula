@@ -103,22 +103,22 @@ mod app {
             &mut resets,
         );
 
-        pins.gpio0.into_mode::<FunctionPio0>();
-        pins.gpio1.into_mode::<FunctionPio0>();
-        pins.gpio2.into_mode::<FunctionPio0>();
-        pins.gpio3.into_mode::<FunctionPio0>();
-        pins.gpio4.into_mode::<FunctionPio0>();
-        pins.gpio5.into_mode::<FunctionPio0>();
-        pins.gpio6.into_mode::<FunctionPio0>();
-        pins.gpio7.into_mode::<FunctionPio0>();
-        pins.gpio8.into_mode::<FunctionPio0>();
-        pins.gpio9.into_mode::<FunctionPio0>();
-        pins.gpio10.into_mode::<FunctionPio0>();
-        pins.gpio11.into_mode::<FunctionPio0>();
-        pins.gpio12.into_mode::<FunctionPio0>();
-        pins.gpio13.into_mode::<FunctionPio0>();
-        pins.gpio14.into_mode::<FunctionPio0>();
-        pins.gpio15.into_mode::<FunctionPio0>();
+        pins.gpio0.into_function::<FunctionPio0>();
+        pins.gpio1.into_function::<FunctionPio0>();
+        pins.gpio2.into_function::<FunctionPio0>();
+        pins.gpio3.into_function::<FunctionPio0>();
+        pins.gpio4.into_function::<FunctionPio0>();
+        pins.gpio5.into_function::<FunctionPio0>();
+        pins.gpio6.into_function::<FunctionPio0>();
+        pins.gpio7.into_function::<FunctionPio0>();
+        pins.gpio8.into_function::<FunctionPio0>();
+        pins.gpio9.into_function::<FunctionPio0>();
+        pins.gpio10.into_function::<FunctionPio0>();
+        pins.gpio11.into_function::<FunctionPio0>();
+        pins.gpio12.into_function::<FunctionPio0>();
+        pins.gpio13.into_function::<FunctionPio0>();
+        pins.gpio14.into_function::<FunctionPio0>();
+        pins.gpio15.into_function::<FunctionPio0>();
 
         let status_led = pins.gpio25.into_push_pull_output();
         let analyzer = LogicAnalyzer::new(usb_dev, serial, pio, sm, dma, status_led);

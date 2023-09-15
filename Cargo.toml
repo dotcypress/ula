@@ -13,8 +13,8 @@ cortex-m-rtic = "1.1.3"
 defmt = "=0.3.2"
 defmt-rtt = "0.4.0"
 panic-halt = "0.2.0"
-rp2040-hal = { version = "0.8", features = ["rt", "critical-section-impl"] }
-rp2040-boot2 = "0.2"
+rp2040-hal = { version = "0.9.0", features = ["rt", "critical-section-impl"] }
+rp2040-boot2 = "0.3.0"
 pio = "0.2.1"
 usbd-serial = "0.1.1"
 usbd-hid = "0.6.1"

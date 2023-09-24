@@ -70,8 +70,8 @@ mod app {
 
         unsafe {
             let pll = &*pac::PLL_SYS::ptr();
-            pll.prim.modify(|_, w| w.postdiv1().bits(5));
-            pll.prim.modify(|_, w| w.postdiv2().bits(3));
+            pll.prim
+                .modify(|_, w| w.postdiv1().bits(5).postdiv2().bits(3));
         };
 
         let usb_regs = ctx.device.USBCTRL_REGS;

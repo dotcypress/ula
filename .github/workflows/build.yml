@@ -1,0 +1,59 @@
+on: [push, pull_request]
+
+name: μLA
+
+jobs:
+  lints:
+    name: Lints
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: thumbv6m-none-eabi
+          override: true
+          components: rustfmt, clippy
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+      - name: Run cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D warnings
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: thumbv6m-none-eabi
+          override: true
+      - name: Install elf2uf2-rs
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --git https://github.com/dotcypress/elf2uf2-rs --branch serial-feature --no-default-features
+      - name: Build firmware
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target=thumbv6m-none-eabi
+      - name: Pack firmware
+        run: elf2uf2-rs target/thumbv6m-none-eabi/release/ula ula_${{ github.ref_name }}.uf2
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ula_${{ github.ref_name }}.uf2

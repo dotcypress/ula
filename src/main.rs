@@ -31,10 +31,17 @@ pub const SAMPLE_RATE: usize = 100_000_000;
 pub const PIN_BASE: usize = 0;
 pub const XTAL_FREQ_HZ: u32 = 12_000_000_u32;
 
-#[link_section = ".boot2"]
-#[no_mangle]
+#[cfg(not(feature = "generic-bootloader"))]
 #[used]
+#[no_mangle]
+#[link_section = ".boot2"]
 pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_W25Q080;
+
+#[cfg(feature = "generic-bootloader")]
+#[used]
+#[no_mangle]
+#[link_section = ".boot2"]
+pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_GENERIC_03H;
 
 #[rtic::app(device = pac, peripherals = true)]
 mod app {

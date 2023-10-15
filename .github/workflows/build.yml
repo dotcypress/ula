@@ -52,8 +52,17 @@ jobs:
           args: --release --target=thumbv6m-none-eabi
       - name: Pack firmware
         run: elf2uf2-rs target/thumbv6m-none-eabi/release/ula ula_${{ github.ref_name }}.uf2
+      - name: Build generic bootloader firmware
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target=thumbv6m-none-eabi --features=generic-bootloader
+      - name: Pack generic bootloader firmware
+        run: elf2uf2-rs target/thumbv6m-none-eabi/release/ula ula_${{ github.ref_name }}_generic.uf2
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ula_${{ github.ref_name }}.uf2
+          files: |
+            ula_${{ github.ref_name }}.uf2
+            ula_${{ github.ref_name }}_generic.uf2

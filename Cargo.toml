@@ -23,6 +23,10 @@ cortex-m = "0.7.7"
 panic-probe = "0.3.1"
 embedded-hal = "0.2.7"
 
+[features]
+default = []
+generic-bootloader = []
+
 [profile.dev]
 codegen-units = 1
 debug = 2

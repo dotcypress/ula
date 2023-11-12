@@ -13,7 +13,7 @@ SUMP/OLS compatible logic analyzer firmware for [RP2040](https://en.wikipedia.or
 ## Supported hardware
 
 * [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico)
-* [RP2040-Zero](https://www.waveshare.com/rp2040-zero.htm)
+* [uPico](https://github.com/dotcypress/upico)
 * Virtually all RP2040 based boards with USB connection and GPIO 0-15 available
 * Bring your own RP2040 hardware with proper frontend and protection
 

@@ -45,7 +45,7 @@ Protocol selection         |  Connect window
 
 Scan for devices
 ```
-$ sigrok-cli -d ols:conn=/dev/tty.usbmodem_ula_1 --scan
+$ sigrok-cli -d "ols:conn=$(realpath /dev/serial/by-id/usb-Ferris___Co_vitaly.codes_ula__ula_-if00)" --scan
 
   The following devices were found:
   ols - uLA: Micro Logic Analyzer with 16 channels: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
@@ -53,7 +53,7 @@ $ sigrok-cli -d ols:conn=/dev/tty.usbmodem_ula_1 --scan
 
 Sample two 10 MHz square waves with 90° phase shift
 ```
-$ sigrok-cli -d ols:conn=/dev/tty.usbmodem_ula_1 
+$ sigrok-cli -d "ols:conn=$(realpath /dev/serial/by-id/usb-Ferris___Co_vitaly.codes_ula__ula_-if00)" 
     -O ascii:charset='_`\/'
     --config samplerate=100m
     --samples 70

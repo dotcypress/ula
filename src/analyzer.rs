@@ -211,21 +211,24 @@ impl LogicAnalyzer {
                             0xc0 | 0xc4 | 0xc8 | 0xcc => {
                                 // SetTriggerMask command for different stages.
                                 let stage = (self.scratch[0] - 0xc0) / 4;
-                                let mask = u32::from_le_bytes(self.scratch[1..5].try_into().unwrap());
+                                let mask =
+                                    u32::from_le_bytes(self.scratch[1..5].try_into().unwrap());
                                 self.drain_rx(5);
                                 Some(SumpCommand::SetTriggerMask(stage, mask))
                             }
                             0xc1 | 0xc5 | 0xc9 | 0xcd => {
                                 // SetTriggerValues command for different stages.
                                 let stage = (self.scratch[0] - 0xc1) / 4;
-                                let val = u32::from_le_bytes(self.scratch[1..5].try_into().unwrap());
+                                let val =
+                                    u32::from_le_bytes(self.scratch[1..5].try_into().unwrap());
                                 self.drain_rx(5);
                                 Some(SumpCommand::SetTriggerValues(stage, val))
                             }
                             0xc2 | 0xc6 | 0xca | 0xce => {
                                 // SetTriggerDelay command for different stages.
                                 let stage = (self.scratch[0] - 0xc2) / 4;
-                                let delay = u16::from_le_bytes(self.scratch[1..3].try_into().unwrap());
+                                let delay =
+                                    u16::from_le_bytes(self.scratch[1..3].try_into().unwrap());
                                 self.drain_rx(5);
                                 Some(SumpCommand::SetTriggerDelay(stage, delay as _))
                             }

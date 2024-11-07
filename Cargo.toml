@@ -1,6 +1,6 @@
 [package]
 name = "ula"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["Vitaly Domnikov <oss@vitaly.codes>"]
 repository = "https://github.com/dotcypress/ula"
 description = "μLA: Micro Logic Analyzer for RP2040"

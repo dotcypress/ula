@@ -44,7 +44,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: install
-          args: --git https://github.com/dotcypress/elf2uf2-rs --branch serial-feature --no-default-features
+          args: elf2uf2-rs --no-default-features
       - name: Build firmware
         uses: actions-rs/cargo@v1
         with:

@@ -13,12 +13,13 @@ use defmt_rtt as _;
 
 use analyzer::*;
 use cortex_m::singleton;
-use embedded_hal::digital::v2::OutputPin;
+use embedded_hal::digital::OutputPin;
 use hal::dma::{self, *};
 use hal::gpio::*;
 use hal::pac;
 use hal::pio::*;
 use hal::usb::UsbBus;
+use rtic_monotonics::rp2040_timer_monotonic;
 use sampler::*;
 use trigger::*;
 use usb_device::{class_prelude::*, prelude::*};
@@ -50,6 +51,8 @@ pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_W25Q080;
 /// Bootloader configuration for generic bootloader.
 pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_GENERIC_03H;
 
+rp2040_timer_monotonic!(Mono);
+
 #[rtic::app(device = pac, peripherals = true)]
 mod app {
     use super::*;
@@ -67,7 +70,7 @@ mod app {
 
     /// Initialization function executed at startup.
     #[init]
-    fn init(ctx: init::Context) -> (Shared, Local, init::Monotonics) {
+    fn init(ctx: init::Context) -> (Shared, Local) {
         // Reset the SIO to a known state.
         unsafe {
             hal::sio::spinlock_reset();
@@ -91,7 +94,7 @@ mod app {
         // Manually set PLL dividers.
         unsafe {
             let pll = &*pac::PLL_SYS::ptr();
-            pll.prim
+            pll.prim()
                 .modify(|_, w| w.postdiv1().bits(5).postdiv2().bits(3));
         };
 
@@ -104,10 +107,13 @@ mod app {
 
         // Initialize serial port over USB.
         let serial = SerialPort::new(usb_bus);
-        let usb_dev = UsbDeviceBuilder::new(usb_bus, UsbVidPid(0x16c0, 0x27dd))
+        let info = StringDescriptors::default()
             .manufacturer("Ferris & Co")
             .product("vitaly.codes/ula")
-            .serial_number("_ula_")
+            .serial_number("_ula_");
+        let usb_dev = UsbDeviceBuilder::new(usb_bus, UsbVidPid(0x16c0, 0x27dd))
+            .strings(&[info])
+            .unwrap()
             .device_class(2)
             .build();
 
@@ -153,7 +159,7 @@ mod app {
         // Create a new instance of the Logic Analyzer.
         let analyzer = LogicAnalyzer::new(usb_dev, serial, pio, sm, dma, status_led);
 
-        (Shared { analyzer }, Local {}, init::Monotonics())
+        (Shared { analyzer }, Local {})
     }
 
     /// Interrupt handler for USB controller events.

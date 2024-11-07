@@ -66,7 +66,9 @@ impl Sampler {
         let mut asm = TriggerAssembler::new();
         asm.push(true, true);
         let program = pio.install(&asm.assemble_program()).unwrap();
-        let (sm, rx, tx) = PIOBuilder::from_program(program).build(sm);
+        let (sm, rx, tx) = PIOBuilder::from_installed_program(program)
+            .out_shift_direction(ShiftDirection::Left)
+            .build(sm);
         let sm = sm.start();
 
         // Allocate memory for sample storage using a singleton.
@@ -131,7 +133,8 @@ impl Sampler {
                 self.pio.uninstall(old);
                 let program = trigger.compile();
                 let program = self.pio.install(&program).unwrap();
-                let (sm, rx, tx) = PIOBuilder::from_program(program)
+                let (sm, rx, tx) = PIOBuilder::from_installed_program(program)
+                    .out_shift_direction(ShiftDirection::Left)
                     .clock_divisor_fixed_point(self.divisor + 1, 0)
                     .autopush(true)
                     .in_pin_base(PIN_BASE as _)

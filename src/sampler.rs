@@ -122,7 +122,7 @@ impl Sampler {
         // Retrieve the current DMA channel and PIO resources.
         let (ch, rx, sample_mem) = match self.sink.take() {
             Some(Sink::StandBy(dma)) => dma,
-            Some(Sink::InProgress(tx)) => tx.wait(),
+            Some(Sink::InProgress(tx)) => tx.abort(),
             _ => unreachable!(),
         };
 
@@ -157,10 +157,13 @@ impl Sampler {
     pub fn drain(&mut self, serial: &mut SerialPort<'_, UsbBus>) {
         if let Some(sink) = self.sink.take() {
             match sink {
+                Sink::StandBy((mut ch, rx, sample_mem)) => {
+                    ch.check_irq0();
+                    self.sink = Some(Sink::StandBy((ch, rx, sample_mem)));
+                }
                 Sink::InProgress(mut tx) => {
-                    // Check if the DMA transfer is complete.
                     tx.check_irq0();
-                    let (ch, rx, sample_mem) = tx.wait();
+                    let (ch, rx, sample_mem) = tx.abort();
                     // Iterate over the sample memory and send data based on channel groups.
                     for chunk in sample_mem.chunks(2).take(self.samples + 1).rev() {
                         let s02 = chunk[1].to_le_bytes();
@@ -187,7 +190,6 @@ impl Sampler {
                     // Return the DMA channel and sample memory to standby.
                     self.sink = Some(Sink::StandBy((ch, rx, sample_mem)));
                 }
-                _ => unreachable!(),
             }
         }
     }

@@ -1,6 +1,6 @@
 [package]
 name = "ula"
-version = "0.0.4"
+version = "0.0.5"
 authors = ["Vitaly Domnikov <oss@vitaly.codes>"]
 repository = "https://github.com/dotcypress/ula"
 description = "μLA: Micro Logic Analyzer for RP2040"
@@ -13,14 +13,14 @@ rtic = { version = "2.1.2", features = ["thumbv6-backend"] }
 rtic-monotonics = { version = "2.0.0", features = ["rp2040"] }
 defmt = "0.3.10"
 defmt-rtt = "0.4.1"
-rp2040-hal = { version = "0.10.2", features = ["rt", "critical-section-impl"] }
+rp2040-hal = { version = "0.11.0", features = ["rt", "critical-section-impl"] }
 rp2040-boot2 = "0.3.0"
 pio = "0.2.1"
-portable-atomic = {version = "1.10.0", features = ["critical-section"]}
+portable-atomic = { version = "1.10.0", features = ["critical-section"] }
 usbd-serial = "0.2.2"
 usb-device = "0.3.2"
 cortex-m = "0.7.7"
-panic-probe = "0.3.2"
+panic-probe = { version = "0.3.2", features = ["print-defmt"] }
 embedded-hal = "1.0.0"
 
 [features]

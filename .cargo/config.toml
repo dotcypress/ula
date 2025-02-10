@@ -1,12 +1,16 @@
 [target.thumbv6m-none-eabi]
-runner = "elf2uf2-rs -d"
-# runner = "probe-rs run --chip RP2040"
+# runner = "elf2uf2-rs -d"
+runner = "probe-rs run --chip RP2040"
 
 rustflags = [
-  "-C", "link-arg=--nmagic",
-  "-C", "link-arg=-Tlink.x",
-  "-C", "link-arg=-Tdefmt.x",
-  "-C", "no-vectorize-loops",
+    "-C",
+    "link-arg=--nmagic",
+    "-C",
+    "link-arg=-Tlink.x",
+    "-C",
+    "link-arg=-Tdefmt.x",
+    "-C",
+    "no-vectorize-loops",
 ]
 
 [build]

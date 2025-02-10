@@ -1,0 +1,12 @@
+{
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "check": {
+          "allTargets": false,
+          "targets": "thumbv6m-none-eabi"
+        }
+      }
+    }
+  }
+}

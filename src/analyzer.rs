@@ -1,6 +1,7 @@
 use crate::*;
 
 /// Enumeration of Sump commands used to control the Logic Analyzer.
+#[derive(Debug)]
 enum SumpCommand {
     /// Reset the analyzer.
     Reset,
